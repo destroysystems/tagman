@@ -3,7 +3,7 @@ function init() {
   var context = canvas.getContext('2d');
   context.fillStyle = 'blue';
 
-  var player = { x: 200, y: 200, WIDTH: 100, HEIGHT: 100 };
+  var player = { x: 225, y: 225, WIDTH: 50, HEIGHT: 50 };
 
   drawScenario();
 
@@ -30,40 +30,40 @@ function init() {
 
   function movePlayerUp() {
     clearScenario();
-    var playerSprite = new Path2D();
-    playerSprite.rect(player.x, player.y -= 100, player.WIDTH, player.HEIGHT);
-    context.fill(playerSprite);
+    renderPlayer(player.x, player.y -= 25);
   }
 
   function movePlayerDown() {
     clearScenario();
-    var playerSprite = new Path2D();
-    playerSprite.rect(player.x, player.y += 100, player.WIDTH, player.HEIGHT);
-    context.fill(playerSprite);
+    renderPlayer(player.x, player.y += 25);
+
   }
 
   function movePlayerLeft() {
     clearScenario();
-    var playerSprite = new Path2D();
-    playerSprite.rect(player.x -= 100, player.y, player.WIDTH, player.HEIGHT);
-    context.fill(playerSprite);
+    renderPlayer(player.x -= 25, player.y);
   }
 
   function movePlayerRight() {
     clearScenario();
-    var playerSprite = new Path2D();
-    playerSprite.rect(player.x += 100, player.y, player.WIDTH, player.HEIGHT);
-    context.fill(playerSprite);
+    renderPlayer(player.x += 25, player.y);
+  }
+
+  function renderPlayer(x, y) {
+    var playerSprite = new Image();
+
+    playerSprite.onload = function () {
+      context.drawImage(playerSprite, x, y, player.WIDTH, player.HEIGHT);
+    }
+
+    playerSprite.src = "assets/ghost.png";
   }
 
   function drawScenario() {
-    var context = canvas.getContext('2d');
-    var playerSprite = new Path2D();
-    playerSprite.rect(player.x, player.y, player.WIDTH, player.HEIGHT);
-    context.fill(playerSprite);
+    renderPlayer(player.x, player.y)
   }
 
   function clearScenario() {
-    context.clearRect(0, 0, 500, 500);
+    context.clearRect(0, 0, 600, 600);
   }
 }
