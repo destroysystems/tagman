@@ -1,61 +1,70 @@
 function init() {
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
-  context.fillStyle = 'blue';
+  var player = { id: null, x: null, y: null, WIDTH: 50, HEIGHT: 50 };
 
-  var player = { x: 225, y: 225, WIDTH: 50, HEIGHT: 50 };
+  var socket = new WebSocket('ws://192.168.88.253:8765');
+
+  socket.onopen = function() {
+    socket.send('newSession,0')
+    console.log('Connected to the server')
+  };
+
+  socket.onmessage = function(event) {
+    [player.id, player.x, player.y] = event.data.split(',');
+    renderPlayer(player.x, player.y);
+    console.log(`[message] Data received from server: ${event.data}`);
+  };
+
+  socket.onclose = function() {
+    console.log('Disconnected from the server')
+  };
 
   drawScenario();
 
-  window.addEventListener('keypress', movePlayer);
+  window.addEventListener('keypress', requestMovement);
 
-  function movePlayer(e) {
+  function requestMovement(e) {
     switch (e.keyCode) {
       case 119:
-        movePlayerUp();
-        break;
-      case 115:
-        movePlayerDown();
-        break;
-      case 97:
-        movePlayerLeft();
+        requestMovementUp();
         break;
       case 100:
-        movePlayerRight();
+        requestMovementRight();
+        break;
+      case 115:
+        requestMovementDown();
+        break;
+      case 97:
+        requestMovementLeft();
         break;
       default:
         break;
     }
   }
 
-  function movePlayerUp() {
-    clearScenario();
-    renderPlayer(player.x, player.y -= 25);
+  function requestMovementUp() {
+    socket.send(`${player.id},0`);
   }
 
-  function movePlayerDown() {
-    clearScenario();
-    renderPlayer(player.x, player.y += 25);
-
+  function requestMovementRight() {
+    socket.send(`${player.id},1`);
   }
 
-  function movePlayerLeft() {
-    clearScenario();
-    renderPlayer(player.x -= 25, player.y);
+  function requestMovementDown() {
+    socket.send(`${player.id},2`);
   }
 
-  function movePlayerRight() {
-    clearScenario();
-    renderPlayer(player.x += 25, player.y);
+  function requestMovementLeft() {
+    socket.send(`${player.id},3`);
   }
 
   function renderPlayer(x, y) {
+    clearScenario();
     var playerSprite = new Image();
-
     playerSprite.onload = function () {
-      context.drawImage(playerSprite, x, y, player.WIDTH, player.HEIGHT);
+      context.drawImage(playerSprite, x * 10, y * 10, player.WIDTH, player.HEIGHT);
     }
-
     playerSprite.src = "assets/ghost.png";
   }
 
@@ -64,6 +73,6 @@ function init() {
   }
 
   function clearScenario() {
-    context.clearRect(0, 0, 600, 600);
+    context.clearRect(0, 0, 500, 500);
   }
 }
